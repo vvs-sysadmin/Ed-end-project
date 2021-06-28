@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="WebDriver">
+<test name="functional test">
+<classes>
+<class name="TestNG.simplewebapp"></class>
+</classes>
+</test>
+</suite>
