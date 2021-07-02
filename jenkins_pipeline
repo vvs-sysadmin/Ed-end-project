@@ -1,0 +1,62 @@
+pipeline {
+    agent none
+    stages {
+        stage('Job 1') {
+            agent jenkins_slave
+            steps {
+                sh 'sudo apt install -y puppet-agent'
+                sh 'sudo /opt/puppetlabs/bin/puppet resource service puppet ensure=running enable=true'
+            }
+        }
+        stage('Job 2') {
+            agent master
+            steps {
+                sh 'sudo /opt/puppetlabs/bin/puppetserver ca list'
+                sh 'sudo /opt/puppetlabs/bin/puppetserver ca sign –all'
+            }
+        }
+        stage('Job 3') {
+            agent jenkins_slave
+            steps {
+                 sh 'sudo /opt/puppetlabs/bin/puppet agent -t'
+            }
+        }
+        stage('Job 4') {
+            agent jenkins_slave
+            steps {
+                sh 'git pull https://github.com/vvs-sysadmin/Ed-end-project.git /home/edureka/cert_project/'
+                sh 'cd /home/edureka/cert_project/Ed-end-project/'
+                sh 'sudo docker build -t Dockerfile'			
+                sh 'sudo docker run -itd -p 80:84 --name DevopseduWebapp devopsedu/webapp'
+		       	}
+        }
+		    stage(Job 4 - Git pull) {
+			       agent jenkins_slave
+		         steps {
+		             sh 'git pull https://github.com/vvs-sysadmin/Ed-end-project.git /home/edureka/cert_project/'
+		         }
+		    }
+        stage(Job 4 - run docker file) {
+          agent jenkins_slave
+            steps {
+                script {
+                    try{
+                        sh 'cd /home/edureka/cert_project/Ed-end-project/'
+                        sh 'sudo docker build -t final_project /home/edureka/cert_project/Ed-end-project/Dockerfile'
+                        sh 'sudo docker run -itd -p 8080:80 --name Final_Project final_project'
+                    }
+                    catch(Exception e){
+                        sh 'sudo docker rm -f Final_Project'
+                    }
+                }
+            }
+        }
+        stage(Job 4: Test with selenium) {
+          agent jenkins_slave
+            steps {
+                sh 'cd /home/edureka/cert_project/Ed-end-project/'
+                sh 'java -jar seleniumTest.jar'
+            }
+        }
+    }
+}
