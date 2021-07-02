@@ -1,0 +1,38 @@
+- hosts: all
+  vars:
+   ansible_become_pass: edureka
+  tasks: 
+    - name: Install git
+      become: yes
+      become_method: sudo
+      apt: name=git update_cache=yes state=present
+	  
+	- name: git init --bare cert_project with the command module
+      command: git init --bare cert_project
+      args:
+        chdir: /home/edureka
+      become_user: git
+   
+    - name: Set the permissions on {{ git_base_dir }}/{{ project }}
+      file:
+        path: /home/edureka/cert_project
+        state: directory
+        mode: 0755
+        owner: edureka
+        group: edureka
+        recurse: True
+		
+    - name: install chromium
+      become: yes
+      become_method: sudo
+      package: name=chromium-browser state=present
+	  
+    - name: Install chromedriver
+      become: yes
+      become_method: sudo
+      unarchive:
+        src: https://chromedriver.storage.googleapis.com/2.16/chromedriver_linux64.zip
+        copy: no
+        dest: /usr/bin
+        mode: u=rwx,g=rx,o=rx
+        creates: /usr/bin/chromedriver 
