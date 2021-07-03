@@ -2,32 +2,43 @@ pipeline {
     agent none
     stages {
         stage('Job 1') {
-            agent jenkins_slave
+            agent { node { label 'jenkins_slave' } }
             steps {
                 sh 'sudo apt install -y puppet-agent'
                 sh 'sudo /opt/puppetlabs/bin/puppet resource service puppet ensure=running enable=true'
+                sh 'sudo /opt/puppetlabs/bin/puppet agent --test --master kmaster.ap-south-1.compute.internal &'
             }
         }
         stage('Job 2') {
-            agent master
+            agent { node { label 'master' } }
             steps {
                 sh 'sudo /opt/puppetlabs/bin/puppetserver ca list'
-                sh 'sudo /opt/puppetlabs/bin/puppetserver ca sign –all'
+                sh 'sudo /opt/puppetlabs/bin/puppetserver ca sign --certname kslave1.ap-south-1.compute.internal '
             }
         }
         stage('Job 3') {
-            agent jenkins_slave
+            agent { node { label 'jenkins_slave' } }
             steps {
-                 sh 'sudo /opt/puppetlabs/bin/puppet agent -t'
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh 'sudo /opt/puppetlabs/bin/puppet agent -t'
+                }
             }
         }
-        stage(Job 4 - run docker file) {
-          agent jenkins_slave
+		stage('Job 4 - Git pull') {
+            agent { node { label 'jenkins_slave' } }
+            steps {
+                sh 'cd /home/edureka/Cert_Project/'
+	            sh 'git pull https://github.com/vvs-sysadmin/Ed-end-project.git'
+	            sh 'cp -pr /var/lib/jenkis/workspace/Cert_Project/* /home/edureka/Cert_Project/'
+		         }
+		    }
+        stage('Job 4 - run docker file') {
+            agent { node { label 'jenkins_slave' } }
             steps {
                 script {
                     try{
-                        sh 'cd /home/edureka/cert_project/Ed-end-project/'
-                        sh 'sudo docker build -t final_project /home/edureka/cert_project/Ed-end-project/Dockerfile'
+                        sh 'cd /home/edureka/Cert_Project/'
+                        sh 'sudo docker build -t final_project /home/edureka/Cert_Project/'
                         sh 'sudo docker run -itd -p 8080:80 --name Final_Project final_project'
                     }
                     catch(Exception e){
@@ -36,11 +47,18 @@ pipeline {
                 }
             }
         }
-        stage(Job 4: Test with selenium) {
-          agent jenkins_slave
+        stage('Job 4: Test with selenium') {
+          agent { node { label 'jenkins_slave' } }
             steps {
-                sh 'cd /home/edureka/cert_project/Ed-end-project/'
-                sh 'java -jar seleniumTest.jar'
+                script {
+                    try{
+                        sh 'cd /home/edureka/Cert_Project/'
+                        sh 'java -jar /home/edureka/Cert_Project/seleniumTest.jar'
+                    }
+                    catch(Exception e){
+                        sh 'sudo docker rm -f Final_Project'
+                    }
+                }
             }
         }
     }
