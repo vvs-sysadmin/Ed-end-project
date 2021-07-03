@@ -1,6 +1,6 @@
 - hosts: all
   vars:
-   ansible_become_pass: edureka
+   ansible_become_pass: edk
   tasks: 
     - name: Install git
       become: yes
@@ -10,12 +10,12 @@
 	- name: git init --bare cert_project with the command module
       command: git init --bare cert_project
       args:
-        chdir: /home/edureka
+        chdir: /home/edk
       become_user: git
    
     - name: Set the permissions on {{ git_base_dir }}/{{ project }}
       file:
-        path: /home/edureka/cert_project
+        path: /home/edk/cert_project
         state: directory
         mode: 0755
         owner: edureka
