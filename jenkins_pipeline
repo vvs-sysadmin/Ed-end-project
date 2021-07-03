@@ -27,9 +27,9 @@ pipeline {
 		stage('Job 4 - Git pull') {
             agent { node { label 'jenkins_slave' } }
             steps {
-                sh 'cd /home/edureka/Cert_Project/'
+                sh 'cd /home/edk/Cert_Project/'
 	            sh 'git pull https://github.com/vvs-sysadmin/Ed-end-project.git'
-	            sh 'cp -pr /var/lib/jenkis/workspace/Cert_Project/* /home/edureka/Cert_Project/'
+	            sh 'cp -pr /var/lib/jenkis/workspace/Cert_Project/* /home/edk/Cert_Project/'
 		         }
 		    }
         stage('Job 4 - run docker file') {
@@ -37,8 +37,8 @@ pipeline {
             steps {
                 script {
                     try{
-                        sh 'cd /home/edureka/Cert_Project/'
-                        sh 'sudo docker build -t final_project /home/edureka/Cert_Project/'
+                        sh 'cd /home/edk/Cert_Project/'
+                        sh 'sudo docker build -t final_project /home/edk/Cert_Project/'
                         sh 'sudo docker run -itd -p 8080:80 --name Final_Project final_project'
                     }
                     catch(Exception e){
@@ -52,8 +52,8 @@ pipeline {
             steps {
                 script {
                     try{
-                        sh 'cd /home/edureka/Cert_Project/'
-                        sh 'java -jar /home/edureka/Cert_Project/seleniumTest.jar'
+                        sh 'cd /home/edk/Cert_Project/'
+                        sh 'java -jar /home/edk/Cert_Project/seleniumTest.jar'
                     }
                     catch(Exception e){
                         sh 'sudo docker rm -f Final_Project'
