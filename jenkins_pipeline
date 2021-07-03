@@ -21,21 +21,6 @@ pipeline {
                  sh 'sudo /opt/puppetlabs/bin/puppet agent -t'
             }
         }
-        stage('Job 4') {
-            agent jenkins_slave
-            steps {
-                sh 'git pull https://github.com/vvs-sysadmin/Ed-end-project.git /home/edureka/cert_project/'
-                sh 'cd /home/edureka/cert_project/Ed-end-project/'
-                sh 'sudo docker build -t Dockerfile'			
-                sh 'sudo docker run -itd -p 80:84 --name DevopseduWebapp devopsedu/webapp'
-		       	}
-        }
-		    stage(Job 4 - Git pull) {
-			       agent jenkins_slave
-		         steps {
-		             sh 'git pull https://github.com/vvs-sysadmin/Ed-end-project.git /home/edureka/cert_project/'
-		         }
-		    }
         stage(Job 4 - run docker file) {
           agent jenkins_slave
             steps {
