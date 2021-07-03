@@ -1,4 +1,4 @@
-FROM devopsedu/webapp
+FROM 
 
 MAINTAINER VVS
 
